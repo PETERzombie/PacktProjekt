@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My FastAPI App</title>
+</head>
+<body>
+    <h1>Welcome to My FastAPI App!</h1>
+    <p>This is a simple example of using FastAPI with templates.</p>
+
+    <form id="itemForm">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="description">Description:</label><br>
+        <input type="text" id="description" name="description"><br>
+        <label for="price">Price:</label><br>
+        <input type="text" id="price" name="price"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <div id="itemsList"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const form = document.getElementById('itemForm');
+        const itemsList = document.getElementById('itemsList');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+
+            try {
+                const response = await axios.post('/items/', jsonData);
+                console.log('Response:', response.data);
+
+                // Clear input fields after successful submission
+                form.reset();
+
+                // Fetch and render items after submission
+                fetchItems();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        async function fetchItems() {
+            try {
+                const response = await axios.get('/items/');
+                console.log('Items:', response.data);
+
+                // Render items on the page
+                renderItems(response.data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function renderItems(items) {
+            itemsList.innerHTML = ''; // Clear previous items
+            items.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.textContent = `Name: ${item.name}, Description: ${item.description}, Price: ${item.price}`;
+                itemsList.appendChild(itemDiv);
+            });
+        }
+
+        // Fetch items when the page loads
+        fetchItems();
+    </script>
+</body>
+</html>
